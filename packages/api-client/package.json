@@ -18,13 +18,14 @@
     "clean": "rm -rf dist src/generated",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
-    "generate:api": "openapi-typescript ../oas/openapi.yaml --output src/generated/schema.ts && node scripts/generate-rtk-client.js"
+    "generate:api": "npx @rtk-query/codegen-openapi codegen.config.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.0.1",
     "@shared/utils": "workspace:*"
   },
   "devDependencies": {
+    "@rtk-query/codegen-openapi": "^2.0.0",
     "@types/node": "^20.10.6",
     "openapi-typescript": "^6.7.3",
     "typescript": "^5.3.3"

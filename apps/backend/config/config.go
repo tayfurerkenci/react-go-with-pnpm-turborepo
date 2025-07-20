@@ -12,6 +12,8 @@ type Config struct {
 	MongoURI    string
 	Environment string
 	JWTSecret   string
+	TMDBAPIKey  string
+	TMDBBaseURL string
 }
 
 func Load() *Config {
@@ -22,9 +24,11 @@ func Load() *Config {
 
 	return &Config{
 		Port:        getEnv("PORT", "8080"),
-		MongoURI:    getEnv("MONGO_URI", "mongodb://localhost:27017/monorepo"),
+		MongoURI:    getEnv("MONGO_URI", "mongodb://localhost:27017/movies_platform"),
 		Environment: getEnv("ENVIRONMENT", "development"),
 		JWTSecret:   getEnv("JWT_SECRET", "your-secret-key"),
+		TMDBAPIKey:  getEnv("TMDB_API_KEY", "e2cadf69ee384867df4db7959f1eee53"),
+		TMDBBaseURL: getEnv("TMDB_BASE_URL", "https://api.themoviedb.org/3"),
 	}
 }
 

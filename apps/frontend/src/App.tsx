@@ -1,58 +1,89 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { MovieList } from '@/components/MovieList';
+import { TvShowList } from '@/components/TvShowList';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Film, Tv, Play, Star } from 'lucide-react';
+import { useState } from 'react';
 
-// Example component demonstrating the monorepo structure
-function App() {
-  const [health, setHealth] = useState<string>('Checking...')
-
-  useEffect(() => {
-    // Simple health check to test backend connectivity
-    fetch('http://localhost:8080/api/v1/health')
-      .then(res => res.json())
-      .then(data => setHealth(data.status))
-      .catch(() => setHealth('Backend not available'))
-  }, [])
+function AppContent() {
+  const [activeTab, setActiveTab] = useState<'movies' | 'tv'>('movies');
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>🚀 My Monorepo</h1>
-        <p>Go + MongoDB + React + pnpm + Turborepo</p>
-
-        <div className="status-card">
-          <h3>Backend Status</h3>
-          <p style={{
-            color: health === 'healthy' ? 'green' :
-                   health === 'Checking...' ? 'orange' : 'red'
-          }}>
-            {health}
-          </p>
-        </div>
-
-        <div className="features">
-          <h3>✨ Features</h3>
-          <ul>
-            <li>🔥 Type-safe API with OpenAPI</li>
-            <li>⚡ Hot reload development</li>
-            <li>📦 Shared packages</li>
-            <li>🏗️ Turborepo cache</li>
-            <li>🗄️ MongoDB ready</li>
-          </ul>
-        </div>
-
-        <div className="next-steps">
-          <h3>🎯 Next Steps</h3>
-          <ol>
-            <li>Start MongoDB server</li>
-            <li>Run <code>pnpm dev</code> in root</li>
-            <li>Edit <code>packages/oas/openapi.yaml</code></li>
-            <li>Run <code>pnpm generate:api</code></li>
-            <li>Use generated RTK Query hooks!</li>
-          </ol>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Play className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold">MovieDB</h1>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={activeTab === 'movies' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('movies')}
+                className="flex items-center space-x-2"
+              >
+                <Film className="h-4 w-4" />
+                <span>Filmler</span>
+              </Button>
+              <Button
+                variant={activeTab === 'tv' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('tv')}
+                className="flex items-center space-x-2"
+              >
+                <Tv className="h-4 w-4" />
+                <span>Diziler</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Welcome Card */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Star className="h-5 w-5 text-yellow-500" />
+              <span>Turborepo + Go Backend + React Frontend Demo</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Bu uygulama Turborepo monorepo yapısında Go backend, RTK Query API
+              client ve React frontend kullanılarak geliştirilmiştir. shadcn/ui
+              ve Tailwind CSS ile modern bir tasarım sunmaktadır.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Content based on active tab */}
+        {activeTab === 'movies' ? <MovieList /> : <TvShowList />}
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t mt-16">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <p>© 2025 MovieDB. Turborepo + Go + React Demo.</p>
+            <div className="flex items-center space-x-4">
+              <span>shadcn/ui</span>
+              <span>•</span>
+              <span>Tailwind CSS</span>
+              <span>•</span>
+              <span>RTK Query</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
-  )
+  );
 }
 
-export default App
+function App() {
+  return <AppContent />;
+}
+
+export default App;

@@ -11,11 +11,28 @@ import (
 
 	"backend/config"
 	"backend/database"
-	"backend/handlers"
-	"backend/middleware"
+	"backend/internal/delivery/http/routes"
+	"backend/internal/middleware"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title Movies & TV Shows API
+// @version 1.0
+// @description Go + MongoDB backend for Movies & TV Shows platform
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /api/v1
 
 func main() {
 	// Load configuration
@@ -24,7 +41,9 @@ func main() {
 	// Connect to database
 	db, err := database.Connect(cfg.MongoURI)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Printf("Warning: Failed to connect to database: %v", err)
+		log.Println("API will continue without database functionality")
+		db = nil
 	}
 	defer database.Disconnect()
 
@@ -40,20 +59,10 @@ func main() {
 
 	// API routes
 	api := router.Group("/api/v1")
+	routes.SetupRoutes(api, db, cfg)
 
-	// Health check
-	api.GET("/health", handlers.GetHealth(db))
-
-	// User routes
-	userHandler := handlers.NewUserHandler(db)
-	users := api.Group("/users")
-	{
-		users.GET("", userHandler.GetUsers)
-		users.POST("", userHandler.CreateUser)
-		users.GET("/:id", userHandler.GetUserByID)
-		users.PUT("/:id", userHandler.UpdateUser)
-		users.DELETE("/:id", userHandler.DeleteUser)
-	}
+	// Swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Start server
 	srv := &http.Server{
@@ -68,7 +77,8 @@ func main() {
 		}
 	}()
 
-	log.Printf("Server started on port %s", cfg.Port)
+	log.Printf("🚀 Server started on port %s", cfg.Port)
+	log.Printf("📖 Swagger docs: http://localhost:%s/swagger/index.html", cfg.Port)
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)

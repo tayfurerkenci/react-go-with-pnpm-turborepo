@@ -1,4 +1,5 @@
-// Main export for the API client package
-export { api } from './generated/api';
+// Export the generated API and hooks
 export * from './generated/api';
-export type * from './generated/schema';
+
+// Export the base API for store configuration
+export { baseApi } from './store/baseApi';

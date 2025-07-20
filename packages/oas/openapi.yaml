@@ -1,16 +1,16 @@
 openapi: 3.0.3
 info:
-  title: My Monorepo API
-  description: Go + MongoDB backend API
+  title: Movies & TV Shows Platform API
+  description: Go + MongoDB backend for Movies & TV Shows streaming platform with TMDB integration
   version: 1.0.0
   contact:
     name: API Support
-    email: support@example.com
+    email: support@moviesplatform.com
 
 servers:
   - url: http://localhost:8080/api/v1
     description: Development server
-  - url: https://api.example.com/v1
+  - url: https://api.moviesplatform.com/v1
     description: Production server
 
 paths:
@@ -28,151 +28,168 @@ paths:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
 
-  /users:
+  /movies/{id}:
     get:
       tags:
-        - Users
-      summary: Get all users
-      operationId: getUsers
+        - Movies
+      summary: Get movie by internal ID
+      operationId: getMovieById
       parameters:
-        - name: limit
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      responses:
+        '200':
+          description: Movie found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /movies/tmdb/{tmdb_id}:
+    get:
+      tags:
+        - Movies
+      summary: Get movie by TMDB ID
+      operationId: getMovieByTmdbId
+      parameters:
+        - name: tmdb_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Movie found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Movie not found
+
+  /movies/search:
+    get:
+      tags:
+        - Movies
+      summary: Search movies
+      operationId: searchMovies
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
           in: query
           schema:
             type: integer
             minimum: 1
-            maximum: 100
-            default: 10
-        - name: offset
+            default: 1
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMoviesResponse'
+
+  /movies/popular:
+    get:
+      tags:
+        - Movies
+      summary: Get popular movies
+      operationId: getPopularMovies
+      parameters:
+        - name: page
           in: query
           schema:
             type: integer
-            minimum: 0
-            default: 0
+            minimum: 1
+            default: 1
       responses:
         '200':
-          description: List of users
+          description: Popular movies
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UsersResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/PaginatedMoviesResponse'
 
-    post:
-      tags:
-        - Users
-      summary: Create a new user
-      operationId: createUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUserRequest'
-      responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /users/{id}:
+  /movies/genre/{genre_id}:
     get:
       tags:
-        - Users
-      summary: Get user by ID
-      operationId: getUserById
+        - Movies
+      summary: Get movies by genre
+      operationId: getMoviesByGenre
       parameters:
-        - name: id
+        - name: genre_id
           in: path
           required: true
           schema:
-            type: string
-            pattern: '^[0-9a-fA-F]{24}$'
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
       responses:
         '200':
-          description: User found
+          description: Movies by genre
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/PaginatedMoviesResponse'
 
-    put:
+  /tv/{id}:
+    get:
       tags:
-        - Users
-      summary: Update user
-      operationId: updateUser
+        - TV Shows
+      summary: Get TV show by ID
+      operationId: getTVShowById
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{24}$'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserRequest'
       responses:
         '200':
-          description: User updated successfully
+          description: TV show found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/TVShow'
 
-    delete:
+  /genres/{media_type}:
+    get:
       tags:
-        - Users
-      summary: Delete user
-      operationId: deleteUser
+        - Genres
+      summary: Get genres for media type
+      operationId: getGenres
       parameters:
-        - name: id
+        - name: media_type
           in: path
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{24}$'
+            enum: [movie, tv]
       responses:
-        '204':
-          description: User deleted successfully
-        '404':
-          description: User not found
+        '200':
+          description: Genres list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/GenresResponse'
 
 components:
   schemas:
@@ -195,42 +212,54 @@ components:
         version:
           type: string
 
-    User:
+    Movie:
       type: object
       required:
         - id
-        - email
-        - firstName
-        - lastName
+        - tmdbMovieId
+        - title
         - createdAt
         - updatedAt
       properties:
         id:
           type: string
           pattern: '^[0-9a-fA-F]{24}$'
-          example: '507f1f77bcf86cd799439011'
-        email:
-          type: string
-          format: email
-          example: 'user@example.com'
-        firstName:
-          type: string
-          minLength: 1
-          maxLength: 50
-          example: 'John'
-        lastName:
-          type: string
-          minLength: 1
-          maxLength: 50
-          example: 'Doe'
-        age:
+        tmdbMovieId:
           type: integer
-          minimum: 0
-          maximum: 150
-          example: 30
-        isActive:
+        title:
+          type: string
+        overview:
+          type: string
+        posterPath:
+          type: string
+        backdropPath:
+          type: string
+        releaseDate:
+          type: string
+          format: date
+        runtime:
+          type: integer
+        voteAverage:
+          type: number
+          format: float
+        voteCount:
+          type: integer
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+        adult:
           type: boolean
-          default: true
+        budget:
+          type: integer
+          format: int64
+        revenue:
+          type: integer
+          format: int64
+        status:
+          type: string
+        tagline:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -238,79 +267,88 @@ components:
           type: string
           format: date-time
 
-    CreateUserRequest:
+    TVShow:
       type: object
-      required:
-        - email
-        - firstName
-        - lastName
       properties:
-        email:
+        id:
           type: string
-          format: email
-          example: 'user@example.com'
-        firstName:
-          type: string
-          minLength: 1
-          maxLength: 50
-          example: 'John'
-        lastName:
-          type: string
-          minLength: 1
-          maxLength: 50
-          example: 'Doe'
-        age:
+          pattern: '^[0-9a-fA-F]{24}$'
+        tmdbTvShowId:
           type: integer
-          minimum: 0
-          maximum: 150
-          example: 30
-
-    UpdateUserRequest:
-      type: object
-      properties:
-        email:
+        name:
           type: string
-          format: email
-          example: 'user@example.com'
-        firstName:
+        overview:
           type: string
-          minLength: 1
-          maxLength: 50
-          example: 'John'
-        lastName:
+        posterPath:
           type: string
-          minLength: 1
-          maxLength: 50
-          example: 'Doe'
-        age:
+        backdropPath:
+          type: string
+        firstAirDate:
+          type: string
+          format: date
+        lastAirDate:
+          type: string
+          format: date
+        numberOfSeasons:
           type: integer
-          minimum: 0
-          maximum: 150
-          example: 30
-        isActive:
-          type: boolean
-
-    UsersResponse:
-      type: object
-      required:
-        - users
-        - total
-        - limit
-        - offset
-      properties:
-        users:
+        numberOfEpisodes:
+          type: integer
+        voteAverage:
+          type: number
+          format: float
+        voteCount:
+          type: integer
+        genres:
           type: array
           items:
-            $ref: '#/components/schemas/User'
-        total:
+            $ref: '#/components/schemas/Genre'
+        status:
+          type: string
+        type:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Genre:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
           type: integer
-          minimum: 0
-        limit:
+        name:
+          type: string
+
+    PaginatedMoviesResponse:
+      type: object
+      required:
+        - movies
+        - page
+        - totalPages
+      properties:
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+        page:
           type: integer
-          minimum: 1
-        offset:
+        totalPages:
           type: integer
-          minimum: 0
+
+    GenresResponse:
+      type: object
+      required:
+        - genres
+      properties:
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
 
     ErrorResponse:
       type: object
@@ -320,26 +358,20 @@ components:
       properties:
         error:
           type: string
-          example: 'validation_error'
+          example: 'movie_not_found'
         message:
           type: string
-          example: 'Invalid input data'
+          example: 'Movie not found'
         details:
           type: object
           additionalProperties: true
 
-  parameters:
-    UserIdParam:
-      name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        pattern: '^[0-9a-fA-F]{24}$'
-      description: MongoDB ObjectId
-
 tags:
   - name: Health
     description: Health check endpoints
-  - name: Users
-    description: User management endpoints
+  - name: Movies
+    description: Movie-related endpoints
+  - name: TV Shows
+    description: TV show-related endpoints
+  - name: Genres
+    description: Genre-related endpoints
