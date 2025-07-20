@@ -1,0 +1,32 @@
+{
+  "name": "@api/client",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Auto-generated RTK Query API client from OpenAPI schema",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm generate:api && tsc",
+    "dev": "pnpm generate:api && tsc --watch",
+    "clean": "rm -rf dist src/generated",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "generate:api": "openapi-typescript ../oas/openapi.yaml --output src/generated/schema.ts && node scripts/generate-rtk-client.js"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.0.1",
+    "@shared/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "openapi-typescript": "^6.7.3",
+    "typescript": "^5.3.3"
+  }
+}

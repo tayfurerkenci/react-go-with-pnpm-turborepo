@@ -1,0 +1,15 @@
+{
+  "name": "@oas/schema",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OpenAPI schema definitions",
+  "main": "openapi.yaml",
+  "scripts": {
+    "build": "echo 'OAS schema is ready'",
+    "validate": "swagger-codegen validate -i openapi.yaml",
+    "lint": "spectral lint openapi.yaml"
+  },
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.11.0"
+  }
+}

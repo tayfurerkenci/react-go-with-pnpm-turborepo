@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Enable shared lockfile for all workspaces
+prefer-workspace-packages: true
+link-workspace-packages: true
+save-workspace-protocol: rolling
