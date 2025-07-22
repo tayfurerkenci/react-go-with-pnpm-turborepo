@@ -1,0 +1,48 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "main": "./App.js",
+  "scripts": {
+    "start": "expo start",
+    "dev": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "expo export",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@api/client": "workspace:*",
+    "@babel/runtime": "^7.27.6",
+    "@expo/vector-icons": "^14.0.0",
+    "@reduxjs/toolkit": "^2.0.1",
+    "@shared/utils": "workspace:*",
+    "@ui/components": "workspace:*",
+    "expo": "~50.0.0",
+    "expo-constants": "~16.0.1",
+    "expo-linking": "~6.3.1",
+    "expo-modules-core": "~1.11.8",
+    "expo-router": "~3.4.0",
+    "expo-status-bar": "~1.11.1",
+    "lucide-react-native": "^0.525.0",
+    "nativewind": "^2.0.11",
+    "react": "18.2.0",
+    "react-native": "0.73.6",
+    "react-native-gesture-handler": "~2.14.0",
+    "react-native-reanimated": "~3.6.2",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0",
+    "react-native-web": "~0.19.6",
+    "react-redux": "^9.0.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@types/react": "~18.2.43",
+    "@types/react-native": "~0.73.0",
+    "eslint": "^8.55.0",
+    "tailwindcss": "3.3.2",
+    "typescript": "^5.2.2"
+  },
+  "private": true
+}

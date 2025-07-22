@@ -7,6 +7,7 @@ import (
 	"backend/internal/infrastructure/service"
 	"backend/internal/middleware"
 	"backend/internal/usecase"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -53,15 +54,84 @@ func SetupRoutes(router *gin.RouterGroup, db *mongo.Database, cfg *config.Config
 		movies.GET("/:id", movieHandler.GetMovie)
 		movies.GET("/tmdb/:tmdb_id", movieHandler.GetMovieByTMDBID)
 		movies.GET("/search", movieHandler.SearchMovies)
-		movies.GET("/popular", movieHandler.GetPopularMovies)
+		movies.GET("/popular", func(c *gin.Context) {
+			fmt.Println("🔥 Movies popular endpoint hit!")
+			movieHandler.GetPopularMovies(c)
+		})
 		movies.GET("/genre/:genre_id", movieHandler.GetMoviesByGenre)
 	}
 
-	// TV Show routes (placeholder)
+	// TV Show routes
 	tvShows := v1.Group("/tv")
 	{
+		tvShows.GET("/popular", func(c *gin.Context) {
+			fmt.Println("🔥 TV Shows popular endpoint hit!")
+			page := 1 // Default to page 1
+			shows, totalPages, err := tmdbService.GetPopularTVShows(c.Request.Context(), page)
+			if err != nil {
+				fmt.Printf("❌ Error fetching TV shows: %v\n", err)
+				c.JSON(500, handler.ErrorResponse{
+					Error:   "fetch_error",
+					Message: "Failed to fetch popular TV shows",
+				})
+				return
+			}
+			fmt.Printf("✅ Successfully fetched %d TV shows\n", len(shows))
+			c.JSON(200, gin.H{
+				"results":     shows,
+				"page":        page,
+				"total_pages": totalPages,
+			})
+		})
+
+		tvShows.GET("/search", func(c *gin.Context) {
+			query := c.Query("q")
+			if query == "" {
+				c.JSON(400, handler.ErrorResponse{
+					Error:   "missing_query",
+					Message: "Query parameter 'q' is required",
+				})
+				return
+			}
+
+			page := 1 // Default to page 1
+			results, totalPages, err := tmdbService.SearchTVShows(c.Request.Context(), query, page)
+			if err != nil {
+				c.JSON(500, handler.ErrorResponse{
+					Error:   "search_error",
+					Message: "Failed to search TV shows",
+				})
+				return
+			}
+			c.JSON(200, gin.H{
+				"results":     results,
+				"page":        page,
+				"total_pages": totalPages,
+			})
+		})
+
 		tvShows.GET("/:id", func(c *gin.Context) {
-			c.JSON(200, gin.H{"message": "TV show endpoint - coming soon"})
+			id := c.Param("id")
+
+			// Convert string to int
+			var tmdbID int
+			if _, err := fmt.Sscanf(id, "%d", &tmdbID); err != nil {
+				c.JSON(400, handler.ErrorResponse{
+					Error:   "invalid_id",
+					Message: "TV show ID must be a number",
+				})
+				return
+			}
+
+			show, err := tmdbService.GetTVShow(c.Request.Context(), tmdbID)
+			if err != nil {
+				c.JSON(404, handler.ErrorResponse{
+					Error:   "not_found",
+					Message: "TV show not found",
+				})
+				return
+			}
+			c.JSON(200, show)
 		})
 	}
 
